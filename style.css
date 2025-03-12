@@ -1,0 +1,50 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body, html {
+  height: 100%;
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #000000, #ffffff);
+  overflow: hidden;
+}
+
+.container {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  animation: fadeInUp 2s ease-in-out;
+}
+
+.main-text {
+  color: #000;
+  font-size: 3rem;
+  font-weight: bold;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeInUp 2s ease-in-out forwards;
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.main-text:hover {
+  transform: translateY(-10px);
+  transition: transform 0.3s ease-out;
+}
