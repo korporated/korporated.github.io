@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mysty - omnytagvr.com</title>
+
+    <!-- Discord Embed Meta Tags -->
+    <meta property="og:title" content="mysty - omnytagvr.com">
+    <meta property="og:description" content="I'm a 15-year-old Unity developer. Reach me at ‪(863) 608-9948‬ or mysty@omnytagvr.com">
+    <meta property="og:image" content="https://cdn.discordapp.com/avatars/853422984861712430/a_d4364664818a51060ced22bf6c8e4b8e?size=1024">
+    <meta property="og:url" content="https://omnytagvr.com">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#a020f0">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            overflow: hidden;
+            position: relative;
+            flex-direction: column;
+        }
+
+        #enterScreen {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: blink 2s infinite ease-in-out;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .card {
+            position: relative;
+            background: rgba(100, 10, 150, 0.3);
+            backdrop-filter: blur(30px);
+            border-radius: 20px;
+            padding: 40px 20px;
+            width: 340px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            z-index: 1;
+        }
+
+        .avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 2px solid rgba(255,255,255,0.4);
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            text-shadow: 0 0 12px rgba(255,255,255,0.9);
+            letter-spacing: 2px;
+        }
+
+        p {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 20px;
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .social-icons a {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: #a020f0;
+            box-shadow: 0 0 12px #a020f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s;
+        }
+
+        .social-icons a:hover {
+            transform: scale(1.2);
+        }
+
+        .social-icons img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0,0,0,0.2);
+            padding: 8px 12px;
+            border-radius: 15px;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        .status i {
+            color: #b19cd9;
+        }
+    </style>
+</head>
+<body>
+    <audio id="background-audio" loop>
+        <source src="song.mp3" type="audio/mp3">
+    </audio>
+
+    <div id="enterScreen">click to enter...</div>
+
+    <div class="stars" id="stars"></div>
+    <div class="card">
+        <img class="avatar" src="https://cdn.discordapp.com/avatars/853422984861712430/a_d4364664818a51060ced22bf6c8e4b8e?size=1024" alt="Avatar">
+        <h1>mysty</h1>
+        <p>i'm a 15 year old unity developer. you can reach me at ‪(863) 608-9948‬
+or mysty@omnytagvr.com</p>
+        <div class="status">
+            mysty • i miss 2023
+        </div>
+        <div class="social-icons">
+            <a href="https://discord.gg/omnytag"><img src="https://cdn-icons-png.flaticon.com/128/4945/4945914.png" alt="Discord"></a>
+            <a href="https://tiktok.com/@mystyprojectomny"><img src="https://cdn-icons-png.flaticon.com/128/3046/3046120.png" alt="TikTok"></a>
+        </div>
+    </div>
+
+    <script>
+        const audio = document.getElementById('background-audio');
+        audio.volume = 0.01;
+
+        document.getElementById('enterScreen').addEventListener('click', function() {
+            this.style.display = 'none';
+            audio.play();
+        });
+
+        const starsContainer = document.getElementById('stars');
+        const numStars = 150;
+
+        for (let i = 0; i < numStars; i++) {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            star.style.top = Math.random() * 100 + 'vh';
+            star.style.left = Math.random() * 100 + 'vw';
+            star.style.animationDuration = (Math.random() * 3 + 1) + 's';
+            star.style.animationDelay = (Math.random() * 3) + 's';
+            starsContainer.appendChild(star);
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            const trailStar = document.createElement('div');
+            trailStar.classList.add('star');
+            trailStar.style.top = e.clientY + 'px';
+            trailStar.style.left = e.clientX + 'px';
+            trailStar.style.animationDuration = '0.5s';
+            starsContainer.appendChild(trailStar);
+            setTimeout(() => trailStar.remove(), 500);
+        });
+    </script>
+
+</body>
+</html>
