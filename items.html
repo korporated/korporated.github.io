@@ -2,17 +2,27 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Animal Company Item Browser</title>
+  <title>Animal Company Item Search</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
-    <h1>Search</h1>
-    <input type="text" id="searchBox" placeholder="Search items...">
+    <h1>Game Data Search</h1>
+
+    <label for="categorySelect">Select Category:</label>
+    <select id="categorySelect">
+      <option value="econ_products.json">Products</option>
+      <option value="econ_avatar_items.json">Avatar Items</option>
+      <option value="econ_mining_ores.json">Mining Ores</option>
+      <option value="econ_gameplay_items.json">Gameplay Items</option>
+      <option value="econ_stash_upgrades.json">Stash Upgrades</option>
+      <option value="econ_research_nodes.json">Research Nodes</option>
+    </select>
+
+    <input type="text" id="searchBox" placeholder="Search selected category...">
     <ul id="results"></ul>
   </div>
 
   <script src="script.js"></script>
 </body>
 </html>
-
