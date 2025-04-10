@@ -10,6 +10,10 @@ async function loadFile(fileName) {
       currentData = json;
     } else if (json.items && Array.isArray(json.items)) {
       currentData = json.items;
+    } else if (json.ores && Array.isArray(json.ores)) {
+      currentData = json.ores;
+    } else if (json.upgrades && Array.isArray(json.upgrades)) {
+      currentData = json.upgrades;
     } else if (Object.values(json).every(v => typeof v === 'object')) {
       currentData = Object.values(json); // fallback: flatten object into array
     } else {
@@ -27,28 +31,30 @@ async function loadFile(fileName) {
 function formatItem(item) {
   const div = document.createElement('div');
   div.className = 'result-item';
+  div.style.padding = '10px';
+  div.style.border = '1px solid #ccc';
+  div.style.marginBottom = '10px';
+  div.style.borderRadius = '6px';
+  div.style.backgroundColor = '#f9f9f9';
 
   for (const [key, value] of Object.entries(item)) {
     const row = document.createElement('div');
-    row.style.marginBottom = '8px';
+    row.style.marginBottom = '6px';
 
-    let displayValue;
+    let displayValue = '';
 
     if (Array.isArray(value)) {
-      // Format arrays as bullet points
       if (value.length === 0) {
         displayValue = '<em>None</em>';
       } else {
-        displayValue = '<ul style="margin: 4px 0 0 20px;">' +
-          value.map(v => `<li>${v}</li>`).join('') +
+        displayValue = '<ul style="margin: 4px 0 0 20px; padding-left: 1em;">' +
+          value.map(v => `<li>${escapeHTML(v)}</li>`).join('') +
           '</ul>';
       }
     } else if (typeof value === 'object' && value !== null) {
-      // Format nested objects as JSON string with indentation
-      displayValue = `<pre>${JSON.stringify(value, null, 2)}</pre>`;
+      displayValue = `<pre>${escapeHTML(JSON.stringify(value, null, 2))}</pre>`;
     } else {
-      // Plain text values
-      displayValue = String(value);
+      displayValue = escapeHTML(String(value));
     }
 
     row.innerHTML = `<strong>${toTitleCase(key)}:</strong> ${displayValue}`;
@@ -58,12 +64,22 @@ function formatItem(item) {
   return div;
 }
 
+function escapeHTML(str) {
+  return str.replace(/[&<>"']/g, function (m) {
+    return ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    })[m];
+  });
+}
+
 function toTitleCase(str) {
   return str
     .replace(/_/g, ' ')
     .replace(/\b\w/g, c => c.toUpperCase());
-}
-
 }
 
 function search(query) {
