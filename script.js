@@ -4,13 +4,37 @@ async function loadFile(fileName) {
   try {
     const response = await fetch(`/gamedata/${fileName}`);
     const json = await response.json();
-    currentData = Array.isArray(json) ? json : Object.values(json);
-    search(document.getElementById('searchBox').value); // trigger search after load
+
+    // Try to extract array of items, even if wrapped inside a parent object
+    if (Array.isArray(json)) {
+      currentData = json;
+    } else if (json.items && Array.isArray(json.items)) {
+      currentData = json.items;
+    } else if (Object.values(json).every(v => typeof v === 'object')) {
+      currentData = Object.values(json); // fallback: flatten object into array
+    } else {
+      currentData = [];
+    }
+
+    search(document.getElementById('searchBox').value); // trigger search
   } catch (err) {
     console.error(`Error loading ${fileName}`, err);
     currentData = [];
     document.getElementById('results').innerHTML = `<li>Failed to load data.</li>`;
   }
+}
+
+function formatItem(item) {
+  const div = document.createElement('div');
+  div.className = 'result-item';
+
+  for (const [key, value] of Object.entries(item)) {
+    const row = document.createElement('div');
+    row.innerHTML = `<strong>${key}:</strong> ${typeof value === 'object' ? JSON.stringify(value) : value}`;
+    div.appendChild(row);
+  }
+
+  return div;
 }
 
 function search(query) {
@@ -20,6 +44,7 @@ function search(query) {
   if (!query) return;
 
   const lowerQuery = query.toLowerCase();
+
   const matches = currentData.filter(item =>
     Object.values(item).some(value =>
       String(value).toLowerCase().includes(lowerQuery)
@@ -33,7 +58,7 @@ function search(query) {
 
   for (const match of matches) {
     const li = document.createElement('li');
-    li.textContent = JSON.stringify(match, null, 2);
+    li.appendChild(formatItem(match));
     resultsContainer.appendChild(li);
   }
 }
@@ -47,8 +72,7 @@ document.getElementById('categorySelect').addEventListener('change', (e) => {
   loadFile(e.target.value);
 });
 
-// Load initial category
+// Load initial
 window.addEventListener('DOMContentLoaded', () => {
-  const initialFile = document.getElementById('categorySelect').value;
-  loadFile(initialFile);
+  loadFile(document.getElementById('categorySelect').value);
 });
