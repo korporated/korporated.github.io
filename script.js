@@ -30,11 +30,40 @@ function formatItem(item) {
 
   for (const [key, value] of Object.entries(item)) {
     const row = document.createElement('div');
-    row.innerHTML = `<strong>${key}:</strong> ${typeof value === 'object' ? JSON.stringify(value) : value}`;
+    row.style.marginBottom = '8px';
+
+    let displayValue;
+
+    if (Array.isArray(value)) {
+      // Format arrays as bullet points
+      if (value.length === 0) {
+        displayValue = '<em>None</em>';
+      } else {
+        displayValue = '<ul style="margin: 4px 0 0 20px;">' +
+          value.map(v => `<li>${v}</li>`).join('') +
+          '</ul>';
+      }
+    } else if (typeof value === 'object' && value !== null) {
+      // Format nested objects as JSON string with indentation
+      displayValue = `<pre>${JSON.stringify(value, null, 2)}</pre>`;
+    } else {
+      // Plain text values
+      displayValue = String(value);
+    }
+
+    row.innerHTML = `<strong>${toTitleCase(key)}:</strong> ${displayValue}`;
     div.appendChild(row);
   }
 
   return div;
+}
+
+function toTitleCase(str) {
+  return str
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, c => c.toUpperCase());
+}
+
 }
 
 function search(query) {
