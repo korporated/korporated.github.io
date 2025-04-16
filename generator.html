@@ -2,101 +2,198 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>lunara json generator</title>
+  <title>Lunara JSON Generator</title>
   <style>
     body {
-      font-family: sans-serif;
-      background-color: #111;
-      color: #fff;
-      max-width: 800px;
-      margin: 20px auto;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #0e0e0e;
+      color: #f1f1f1;
+      margin: 0;
+      padding: 20px;
+      max-width: 900px;
+      margin: auto;
     }
+
+    h2 {
+      text-align: center;
+      color: #9be1ff;
+      margin-bottom: 20px;
+    }
+
     input, button {
-      padding: 6px;
-      margin: 5px;
-      background: #222;
+      padding: 8px 10px;
+      border-radius: 4px;
+      font-size: 14px;
+      border: none;
+      background: #1a1a1a;
       color: #fff;
-      border: 1px solid #555;
+      border: 1px solid #444;
+      transition: all 0.2s ease;
     }
+
+    input:focus, button:hover {
+      outline: none;
+      border-color: #6ec1e4;
+      background-color: #222;
+    }
+
     input[type="number"] {
-      width: 60px;
+      width: 80px;
     }
+
     button {
+      background-color: #333;
       cursor: pointer;
+      margin-right: 10px;
     }
+
+    .input-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 20px;
+      align-items: center;
+    }
+
+    #searchResults {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      max-height: 180px;
+      overflow-y: auto;
+      border-radius: 6px;
+      margin-top: 5px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.5);
+      position: absolute;
+      z-index: 10;
+      width: 100%;
+    }
+
+    .result-item {
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      border-bottom: 1px solid #2a2a2a;
+    }
+
+    .result-item:hover {
+      background-color: #2a2a2a;
+    }
+
+    .result-item::before {
+      content: "🔍 ";
+    }
+
     table {
       width: 100%;
-      margin-top: 20px;
       border-collapse: collapse;
-      color: #fff;
+      margin-top: 30px;
     }
+
     th, td {
-      border: 1px solid #555;
-      padding: 6px;
+      padding: 10px;
       text-align: center;
+      border-bottom: 1px solid #333;
     }
-    #searchResults {
-      background: #222;
-      border: 1px solid #444;
-      max-height: 150px;
-      overflow-y: auto;
-      margin-top: 5px;
+
+    th {
+      background-color: #111;
+      position: sticky;
+      top: 0;
     }
-    .result-item {
-      padding: 5px;
+
+    .fade-in {
+      animation: fadeIn 0.5s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section {
+      background-color: #161616;
+      border: 1px solid #2a2a2a;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      position: relative;
+    }
+
+    #selectedItemID {
+      color: #87d4ff;
+      font-weight: bold;
+    }
+
+    .delete-btn {
+      background: none;
+      border: none;
+      color: #ff6666;
       cursor: pointer;
+      font-size: 16px;
+      transition: color 0.2s;
     }
-    .result-item:hover {
-      background-color: #333;
+
+    .delete-btn:hover {
+      color: #ff3c3c;
     }
   </style>
 </head>
 <body>
-  <h2>Generator</h2>
+  <h2>Lunara Inventory Generator</h2>
 
-  <label>Search Item:
-    <input type="text" id="searchInput" oninput="searchItems()" placeholder="Type to search...">
-  </label>
-  <div id="searchResults"></div>
+  <div class="section fade-in">
+    <label>Search Item:</label>
+    <input type="text" id="searchInput" oninput="searchItems()" placeholder="Type to search..." autocomplete="off">
+    <div id="searchResults"></div>
 
-  <div style="margin-top:10px;">
-    <strong>Selected Item ID:</strong>
-    <span id="selectedItemID">None</span>
+    <div style="margin-top:10px;">
+      <strong>Selected Item ID:</strong>
+      <span id="selectedItemID">None</span>
+    </div>
   </div>
 
-  <label>Hue (0–210):
-    <input type="number" id="hue" value="0" min="0" max="210">
-  </label>
-  <label>Saturation (0–120):
-    <input type="number" id="saturation" value="0" min="0" max="120">
-  </label>
-  <label>Scale (−128 to 127):
-    <input type="number" id="scale" value="-100" min="-128" max="127">
-  </label>
-  <label>Amount:
-    <input type="number" id="amount" value="1" min="1" max="500">
-  </label>
-  <button onclick="addItem()">Add</button>
-  <button onclick="generateJSON()">Download JSON</button>
+  <div class="section fade-in">
+    <div class="input-group">
+      <label>Hue (0–210):
+        <input type="number" id="hue" value="0" min="0" max="210">
+      </label>
+      <label>Saturation (0–120):
+        <input type="number" id="saturation" value="0" min="0" max="120">
+      </label>
+      <label>Scale (−128 to 127):
+        <input type="number" id="scale" value="-100" min="-128" max="127">
+      </label>
+      <label>Amount:
+        <input type="number" id="amount" value="1" min="1" max="500">
+      </label>
+    </div>
+    <button onclick="addItem()">Add Item</button>
+    <button onclick="generateJSON()">Download JSON</button>
+  </div>
 
-  <table>
-    <thead>
-      <tr><th>Item</th><th>Hue</th><th>Saturation</th><th>Scale</th><th>Bag</th></tr>
-    </thead>
-    <tbody id="tableBody"></tbody>
-  </table>
+  <div class="section fade-in">
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Hue</th>
+          <th>Saturation</th>
+          <th>Scale</th>
+          <th>Bag</th>
+          <th>Delete</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
 
   <script>
     const items = [];
     let econItems = [];
     let selectedItemID = null;
 
-    // Load item definitions
     fetch('gamedata/econ_gameplay_items.json')
-      .then(res => {
-        if (!res.ok) throw new Error("Fetch failed");
-        return res.json();
-      })
+      .then(res => res.json())
       .then(data => {
         econItems = data.map(i => ({ id: i.id, name: i.name }));
       })
@@ -153,7 +250,7 @@
     function updateTable() {
       const table = document.getElementById('tableBody');
       table.innerHTML = '';
-      items.forEach(item => {
+      items.forEach((item, index) => {
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>${item.itemID}</td>
@@ -161,9 +258,15 @@
           <td>${item.colorSaturation}</td>
           <td>${item.scaleModifier}</td>
           <td><input type="checkbox" checked disabled></td>
+          <td><button class="delete-btn" onclick="deleteItem(${index})">🗑️</button></td>
         `;
         table.appendChild(row);
       });
+    }
+
+    function deleteItem(index) {
+      items.splice(index, 1);
+      updateTable();
     }
 
     function generateJSON() {
