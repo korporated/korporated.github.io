@@ -8,7 +8,7 @@
       font-family: sans-serif;
       background-color: #111;
       color: #fff;
-      max-width: 700px;
+      max-width: 800px;
       margin: 20px auto;
     }
     input, button {
@@ -35,27 +35,51 @@
       padding: 6px;
       text-align: center;
     }
+    #searchResults {
+      background: #222;
+      border: 1px solid #444;
+      max-height: 150px;
+      overflow-y: auto;
+      margin-top: 5px;
+    }
+    .result-item {
+      padding: 5px;
+      cursor: pointer;
+    }
+    .result-item:hover {
+      background-color: #333;
+    }
   </style>
 </head>
 <body>
   <h2>Generator</h2>
 
-  <label>Item:
-    <input type="text" id="itemID" value="item_revolver_gold">
+  <label>Search Item:
+    <input type="text" id="searchInput" oninput="searchItems()" placeholder="Type to search...">
   </label>
-  <label>Hue:
-    <input type="number" id="hue" value="0">
+  <div id="searchResults"></div>
+
+  <div style="margin-top:10px;">
+    <strong>Selected Item ID:</strong>
+    <span id="selectedItemID">None</span>
+  </div>
+
+  <label>Hue (0–210):
+    <input type="number" id="hue" value="0" min="0" max="210">
   </label>
-  <label>Saturation:
-    <input type="number" id="saturation" value="0">
+  <label>Saturation (0–120):
+    <input type="number" id="saturation" value="0" min="0" max="120">
   </label>
-  <label>Scale:
-    <input type="number" id="scale" value="-100">
+  <label>Scale (−128 to 127):
+    <input type="number" id="scale" value="-100" min="-128" max="127">
+  </label>
+  <label>Amount:
+    <input type="number" id="amount" value="1" min="1" max="500">
   </label>
   <button onclick="addItem()">Add</button>
   <button onclick="generateJSON()">Download JSON</button>
 
-  <table id="itemTable">
+  <table>
     <thead>
       <tr><th>Item</th><th>Hue</th><th>Saturation</th><th>Scale</th><th>Bag</th></tr>
     </thead>
@@ -64,14 +88,64 @@
 
   <script>
     const items = [];
+    let econItems = [];
+    let selectedItemID = null;
+
+    // Load item definitions
+    fetch('gamedata/econ_gameplay_items.json')
+      .then(res => {
+        if (!res.ok) throw new Error("Fetch failed");
+        return res.json();
+      })
+      .then(data => {
+        econItems = data.map(i => ({ id: i.id, name: i.name }));
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Failed to load item list. Make sure gamedata/econ_gameplay_items.json exists.");
+      });
+
+    function searchItems() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const results = econItems.filter(i => i.name.toLowerCase().includes(query));
+      const container = document.getElementById('searchResults');
+      container.innerHTML = '';
+
+      results.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'result-item';
+        div.textContent = `${item.name} (${item.id})`;
+        div.onclick = () => selectItem(item);
+        container.appendChild(div);
+      });
+    }
+
+    function selectItem(item) {
+      selectedItemID = item.id;
+      document.getElementById('selectedItemID').textContent = item.id;
+      document.getElementById('searchInput').value = item.name;
+      document.getElementById('searchResults').innerHTML = '';
+    }
 
     function addItem() {
-      const itemID = document.getElementById('itemID').value;
-      const colorHue = parseInt(document.getElementById('hue').value, 10);
-      const colorSaturation = parseInt(document.getElementById('saturation').value, 10);
-      const scaleModifier = parseInt(document.getElementById('scale').value, 10);
+      if (!selectedItemID) {
+        alert("Please select an item first.");
+        return;
+      }
 
-      items.push({ itemID, colorHue, colorSaturation, scaleModifier });
+      const colorHue = Math.min(210, Math.max(0, parseInt(document.getElementById('hue').value, 10)));
+      const colorSaturation = Math.min(120, Math.max(0, parseInt(document.getElementById('saturation').value, 10)));
+      const scaleModifier = Math.min(127, Math.max(-128, parseInt(document.getElementById('scale').value, 10)));
+      const amount = Math.max(1, parseInt(document.getElementById('amount').value, 10));
+
+      for (let i = 0; i < amount; i++) {
+        items.push({
+          itemID: selectedItemID,
+          colorHue,
+          colorSaturation,
+          scaleModifier
+        });
+      }
 
       updateTable();
     }
@@ -79,7 +153,7 @@
     function updateTable() {
       const table = document.getElementById('tableBody');
       table.innerHTML = '';
-      items.forEach((item) => {
+      items.forEach(item => {
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>${item.itemID}</td>
@@ -105,12 +179,7 @@
               items: [
                 {
                   itemID: "item_backpack_large_base",
-                  children: items.map(item => ({
-                    itemID: item.itemID,
-                    colorHue: item.colorHue,
-                    colorSaturation: item.colorSaturation,
-                    scaleModifier: item.scaleModifier
-                  }))
+                  children: items
                 }
               ]
             })
@@ -120,7 +189,6 @@
 
       const blob = new Blob([JSON.stringify(structuredItems, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
-
       const a = document.createElement('a');
       a.href = url;
       a.download = "custom_inventory.json";
