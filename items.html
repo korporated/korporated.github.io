@@ -2,27 +2,96 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Animal Company Item Search</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>animal company item search</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    #searchBox {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    #results {
+      list-style: none;
+      padding: 0;
+    }
+
+    #results li {
+      background: #fff;
+      margin-bottom: 15px;
+      padding: 15px;
+      border-radius: 8px;
+      border-left: 5px solid #3498db;
+      overflow-x: auto;
+    }
+
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
-    <h1>Game Data Search</h1>
-
-    <label for="categorySelect">Select Category:</label>
-    <select id="categorySelect">
-      <option value="econ_products.json">Products</option>
-      <option value="econ_avatar_items.json">Avatar Items</option>
-      <option value="econ_mining_ores.json">Mining Ores</option>
-      <option value="econ_gameplay_items.json">Gameplay Items</option>
-      <option value="econ_stash_upgrades.json">Stash Upgrades</option>
-      <option value="econ_research_nodes.json">Research Nodes</option>
-    </select>
-
-    <input type="text" id="searchBox" placeholder="Search selected category...">
+    <h1>Search</h1>
+    <input type="text" id="searchBox" placeholder="Search gameplay items...">
     <ul id="results"></ul>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    let data = [];
+
+    // Load JSON file
+    fetch('econ_gameplay_items.json')
+      .then(response => response.json())
+      .then(json => {
+        data = json;
+        renderResults('');
+      });
+
+    const searchBox = document.getElementById('searchBox');
+    const resultsList = document.getElementById('results');
+
+    searchBox.addEventListener('input', (e) => {
+      const searchTerm = e.target.value.toLowerCase();
+      renderResults(searchTerm);
+    });
+
+    function renderResults(searchTerm) {
+      resultsList.innerHTML = '';
+      data.forEach(item => {
+        const jsonString = JSON.stringify(item, null, 2);
+        if (jsonString.toLowerCase().includes(searchTerm)) {
+          const li = document.createElement('li');
+          const pre = document.createElement('pre');
+          pre.textContent = jsonString;
+          li.appendChild(pre);
+          resultsList.appendChild(li);
+        }
+      });
+    }
+  </script>
 </body>
 </html>
