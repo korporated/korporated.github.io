@@ -2,48 +2,62 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>lunara item generator</title>
+  <title>lunara json generator</title>
   <style>
     body {
       font-family: sans-serif;
-      max-width: 600px;
+      background-color: #111;
+      color: #fff;
+      max-width: 700px;
       margin: 20px auto;
     }
-    input, select, button {
-      padding: 5px;
+    input, button {
+      padding: 6px;
       margin: 5px;
+      background: #222;
+      color: #fff;
+      border: 1px solid #555;
+    }
+    input[type="number"] {
+      width: 60px;
+    }
+    button {
+      cursor: pointer;
     }
     table {
       width: 100%;
       margin-top: 20px;
       border-collapse: collapse;
+      color: #fff;
     }
     th, td {
-      border: 1px solid #ccc;
+      border: 1px solid #555;
       padding: 6px;
       text-align: center;
     }
   </style>
 </head>
 <body>
-  <h2>json generator</h2>
+  <h2>Generator</h2>
 
   <label>Item:
-    <input type="text" id="itemID" value="item id goes here">
+    <input type="text" id="itemID" value="item_revolver_gold">
   </label>
-  <label>Amount:
-    <input type="number" id="amount" value="1" min="1">
+  <label>Hue:
+    <input type="number" id="hue" value="0">
   </label>
-  <label>
-    Bag:
-    <input type="checkbox" id="inBag" checked>
+  <label>Saturation:
+    <input type="number" id="saturation" value="0">
+  </label>
+  <label>Scale:
+    <input type="number" id="scale" value="-100">
   </label>
   <button onclick="addItem()">Add</button>
   <button onclick="generateJSON()">Download JSON</button>
 
   <table id="itemTable">
     <thead>
-      <tr><th>Item</th><th>Amount</th><th>Bag</th></tr>
+      <tr><th>Item</th><th>Hue</th><th>Saturation</th><th>Scale</th><th>Bag</th></tr>
     </thead>
     <tbody id="tableBody"></tbody>
   </table>
@@ -53,12 +67,11 @@
 
     function addItem() {
       const itemID = document.getElementById('itemID').value;
-      const amount = parseInt(document.getElementById('amount').value, 10);
-      const inBag = document.getElementById('inBag').checked;
+      const colorHue = parseInt(document.getElementById('hue').value, 10);
+      const colorSaturation = parseInt(document.getElementById('saturation').value, 10);
+      const scaleModifier = parseInt(document.getElementById('scale').value, 10);
 
-      for (let i = 0; i < amount; i++) {
-        items.push({ itemID, bag: inBag });
-      }
+      items.push({ itemID, colorHue, colorSaturation, scaleModifier });
 
       updateTable();
     }
@@ -66,9 +79,15 @@
     function updateTable() {
       const table = document.getElementById('tableBody');
       table.innerHTML = '';
-      items.forEach((item, index) => {
+      items.forEach((item) => {
         const row = document.createElement('tr');
-        row.innerHTML = `<td>${item.itemID}</td><td>1</td><td><input type="checkbox" ${item.bag ? "checked" : ""} disabled></td>`;
+        row.innerHTML = `
+          <td>${item.itemID}</td>
+          <td>${item.colorHue}</td>
+          <td>${item.colorSaturation}</td>
+          <td>${item.scaleModifier}</td>
+          <td><input type="checkbox" checked disabled></td>
+        `;
         table.appendChild(row);
       });
     }
@@ -86,11 +105,11 @@
               items: [
                 {
                   itemID: "item_backpack_large_base",
-                  children: items.map((item, index) => ({
+                  children: items.map(item => ({
                     itemID: item.itemID,
-                    colorHue: index,
-                    colorSaturation: (index * 3) % 100,
-                    scaleModifier: -100 + index
+                    colorHue: item.colorHue,
+                    colorSaturation: item.colorSaturation,
+                    scaleModifier: item.scaleModifier
                   }))
                 }
               ]
