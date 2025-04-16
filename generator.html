@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>lunara item generator</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: 20px auto;
+    }
+    input, select, button {
+      padding: 5px;
+      margin: 5px;
+    }
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 6px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h2>json generator</h2>
+
+  <label>Item:
+    <input type="text" id="itemID" value="item id goes here">
+  </label>
+  <label>Amount:
+    <input type="number" id="amount" value="1" min="1">
+  </label>
+  <label>
+    Bag:
+    <input type="checkbox" id="inBag" checked>
+  </label>
+  <button onclick="addItem()">Add</button>
+  <button onclick="generateJSON()">Download JSON</button>
+
+  <table id="itemTable">
+    <thead>
+      <tr><th>Item</th><th>Amount</th><th>Bag</th></tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+
+  <script>
+    const items = [];
+
+    function addItem() {
+      const itemID = document.getElementById('itemID').value;
+      const amount = parseInt(document.getElementById('amount').value, 10);
+      const inBag = document.getElementById('inBag').checked;
+
+      for (let i = 0; i < amount; i++) {
+        items.push({ itemID, bag: inBag });
+      }
+
+      updateTable();
+    }
+
+    function updateTable() {
+      const table = document.getElementById('tableBody');
+      table.innerHTML = '';
+      items.forEach((item, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${item.itemID}</td><td>1</td><td><input type="checkbox" ${item.bag ? "checked" : ""} disabled></td>`;
+        table.appendChild(row);
+      });
+    }
+
+    function generateJSON() {
+      const structuredItems = {
+        objects: [
+          {
+            collection: "user_inventory",
+            key: "stash",
+            permission_read: 1,
+            permission_write: 1,
+            value: JSON.stringify({
+              version: 1,
+              items: [
+                {
+                  itemID: "item_backpack_large_base",
+                  children: items.map((item, index) => ({
+                    itemID: item.itemID,
+                    colorHue: index,
+                    colorSaturation: (index * 3) % 100,
+                    scaleModifier: -100 + index
+                  }))
+                }
+              ]
+            })
+          }
+        ]
+      };
+
+      const blob = new Blob([JSON.stringify(structuredItems, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = "custom_inventory.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>
